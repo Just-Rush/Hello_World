@@ -1,3 +1,4 @@
 git fetch upstream  #上游更新代码
 git merge upstream/main #合并代码。然后就可以上传了
 -----------------------------------------
+git config --global http.proxy 127.0.0.1:33210  #代理
