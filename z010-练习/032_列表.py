@@ -1,0 +1,26 @@
+#练习3.8
+travel = ['zhoushan','guangdong','yunnan','chuanxi','guowai']
+print(travel)
+sorted(travel)
+'''
+print(travel)
+print(sorted(travel))
+这里来因为sorted是暂时排序，所以这里打印出来的还是未改变排序的
+'''
+print(travel)
+travel.reverse()
+print(travel)
+print(travel.reverse())#不能这么使用
+travel.reverse()
+print(travel)
+travel.reverse()
+print(travel)
+'''
+中间多了个NONE的时候就要再多一次reverse才可以反转，去掉的话只用一个就可以反转了
+'''
+travel.sort()
+print(travel)
+travel.sort(reverse=True)#这里T一定要是大写
+print(travel)
+len(travel)
+print(len(travel))
