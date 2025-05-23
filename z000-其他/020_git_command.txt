@@ -1,0 +1,3 @@
+git fetch upstream  #上游更新代码
+git merge upstream/main #合并代码。然后就可以上传了
+-----------------------------------------
