@@ -1,1 +1,0 @@
-pip list    #查看安装的python库
