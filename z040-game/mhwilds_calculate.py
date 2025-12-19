@@ -1,4 +1,5 @@
 from pathlib import Path
+import unicodedata
 
 def dic() -> dict:
     weapon_dict = {"攻击":'1', "会心":'2'}
@@ -20,23 +21,45 @@ def dic() -> dict:
 
     return weapon_dict, reverse_weapon_dict, series_dict, reverse_series_dict, group_dict, reverse_group_dict
 
-def format_dict_for_display(d: dict, columns: int = 5) -> str:
-    items = list(d.items())
-    if not items:
+def get_visual_width(s: str) -> int:
+    """计算字符串在终端中的视觉宽度，汉字等全角字符计为2，英文等半角字符计为1。"""
+    width = 0
+    for char in s:
+        if unicodedata.east_asian_width(char) in ('F', 'W', 'A'):
+            width += 2
+        else:
+            width += 1
+    return width
+
+def format_dict_for_display(d: dict, columns: int = 3) -> str:
+    """将字典的键值对格式化为多列对齐的字符串，以便清晰地显示。"""
+    if not d:
         return ""
 
-    max_len = max(len(item) for item in items)
-    col_width = max_len + 4  
+    # 1. 创建 "键:值" 格式的字符串列表
+    items_as_str = [f"{key}:{value}" for key, value in d.items()]
+    # items = list(d.items()),
+
+    # 2. 计算所有项中的最大视觉宽度
+    max_visual_width = max(get_visual_width(item) for item in items_as_str) if items_as_str else 0
+    
+    # 3. 确定列宽（最大宽度 + 间距）
+    col_width = max_visual_width + 4
 
     lines = []
-    for i in range(0, len(items), columns):
-
-        row_items = items[i:i+columns]
-
-        lines.append("".join(f"{item[0]:<{col_width}}" for item in row_items))
-    
+    # 4. 按列数分组处理
+    for i in range(0, len(items_as_str), columns):
+        row_items = items_as_str[i:i + columns]
+        line_str = ""
+        # 5. 对当前行的每一项，计算并填充所需空格以实现对齐
+        for item in row_items:
+            visual_width = get_visual_width(item)
+            padding = " " * (col_width - visual_width)
+            line_str += item + padding
+        lines.append(line_str)
 
     return "\n" + "\n".join(lines)
+
 
 def from_skill_to_code() -> str :
     weapon_dict, reverse_weapon_dict, series_dict, reverse_series_dict, group_dict, reverse_group_dict = dic()
@@ -60,6 +83,9 @@ def from_skill_to_code() -> str :
     series_code = int(series_dict.get(series_name))
     group_code = int(group_dict.get(group_name))
 
+    # 可以有更简短的写法。其实好像差不多，可读性还不如上面的
+    # weapon_code = (int(weapon_dict.get(weapon_type)) if not weapon_dict.get(weapon_type).isdigit() else str(reverse_weapon_dict.get(weapon_type)))
+
     if weapon_code and series_code and group_code:
         skill_code = str(series_code * 15 + group_code +2)
         # if len(skill_code) == 2:
@@ -72,10 +98,12 @@ def from_skill_to_code() -> str :
         #     address2 = skill_code[1]
         #     address3 = skill_code[2]
         #     ce_used_code = f"{address1}{weapon_code}0{address2}{weapon_code}0{address3}{weapon_code}"
-        
-        # .zfill() 方法用于在字符串的左侧填充指定的字符（默认为空格），直到达到指定的总长度。
-        skill_code = str(skill_code).zfill(3)
-        ce_used_code = f"{skill_code[0]}{weapon_code}0{skill_code[1]}{weapon_code}0{skill_code[2]}{weapon_code}"
+
+        # zfill(3)方法用于在字符串的左侧填充0，直到达到指定的总长度。
+        # ljust(3, '0')方法也可以实现，这个默认是填充空格。rjust是往右填充
+        skill_code = skill_code.zfill(3)
+        ce_used_code = (f"{str(skill_code)[0]}{weapon_code}0{str(skill_code)[1]}{weapon_code}0"
+                        f"{str(skill_code)[2]}{weapon_code}")
         return ce_used_code
     else:
         return "输入有误，请检查输入的武器类型、系列名称和分组名称。"
