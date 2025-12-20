@@ -108,8 +108,45 @@ def from_skill_to_code() -> str :
     else:
         return "输入有误，请检查输入的武器类型、系列名称和分组名称。"
 
+def get_code_table() -> str:
+    weapon_dict, series_dict, group_dict = dic()[0], dic()[2], dic()[4]
+    with open(Path(__file__).parent / "ct_code_table.md", "w", encoding='utf-8') as f:
+        
+        for weapon_name, weapon_code in weapon_dict.items():
+            
+            f.write(f"武器类型: {weapon_name}\n\n")
 
+            group_names = list(group_dict.keys())
+            header ="|  |" + " | ".join(group_names) + " \n"
+            parting_line = "| :---: |" + " :---: |"* len(group_names) + "\n"
+            f.write(header)
+            f.write(parting_line)
+
+            for series_name, series_code in series_dict.items():
+                row_str = f"| {series_name} |"
+                
+                # 循环所有组合名称，以计算每个单元格的代码
+                for group_name, group_code in group_dict.items():
+
+
+                    skill_code_val = int(series_code) * 15 + int(group_code) + 2
+                    skill_code_str = str(skill_code_val).zfill(3)
+                    
+                    ce_used_code = (f"{skill_code_str[0]}{weapon_code}0"
+                                    f"{skill_code_str[1]}{weapon_code}0"
+                                    f"{skill_code_str[2]}{weapon_code}")
+                    
+                    # 将计算出的代码添加到行字符串中
+                    row_str += f" {ce_used_code} |"
+                
+                # 写入完整的一行
+                f.write(row_str + "  \n")
+            
+            # 在每个表格后添加一个换行，使其分开
+            f.write("\n")
 
 if __name__ == "__main__":
-    print(from_skill_to_code())
+
+    get_code_table()
+    # print(from_skill_to_code())
 
