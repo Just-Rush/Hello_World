@@ -4,7 +4,8 @@
     if all(k in data for k in ['e1', 'e2','e3', 'e7', 'e8', 'e9']):
     语句解析
     ```
-    ![](./attachments/image.png)
+    ![](attachments/image.png)
+    
 2. 
     ```python
     with open(filepath, 'r') as f:
@@ -19,7 +20,14 @@
         for line in lines:
     三种写法的差异
     ```
-	![](./attachments/image-1.png)
+	![](attachments/image-1.png)
+3. 排序文件名
+    ```python
+    sorted(so2_out_dir.glob("so2-*.out"), 
+           key=lambda p: [int(x) if x.isdigit() else x for x in re.split(r'(\d+)', p.name)])
+    ```
+    解释见下方代码块
+
 # python标准库
 ## Pathlib
 1. `Path(__file__).parent`和`Path('.')`
