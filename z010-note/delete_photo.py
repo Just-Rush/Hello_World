@@ -11,6 +11,9 @@ def delete_photo(path):
             changed_file = re.sub(r'!\[\]\([^)]+\)', '图片', content)
         with open(file, "w", encoding="utf-8") as f:
             f.write(changed_file)
+def number2date(path):
+    for file in Path(path).rglob("*.md"):
+        
 
 
 if __name__ == "__main__":
