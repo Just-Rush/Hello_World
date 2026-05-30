@@ -15,8 +15,8 @@ class TopmostCrosshair:
         
         # ========== 用户参数 ==========
         self.CROSSHAIR_COLOR = (255, 0, 0, 255)  # 红色
+        self.TRANSPARENT_COLOR = (0, 0, 0)
         self.LINE_THICKNESS = 1
-        self.WINDOW_ALPHA = 0.8
         self.CENTER_DOT_SIZE = 2
         # ============================
         
@@ -41,9 +41,6 @@ class TopmostCrosshair:
     
     def set_window_properties_enhanced(self):
         """增强的窗口属性设置"""
-        # 设置透明度
-        self.screen.set_alpha(self.WINDOW_ALPHA)
-        
         if sys.platform == "win32":
             try:
                 hwnd = pygame.display.get_wm_info()["window"]
@@ -65,10 +62,14 @@ class TopmostCrosshair:
 
                 ctypes.windll.user32.SetWindowLongW(hwnd, GWL_EXSTYLE, ex_style)
 
-                # 使用 LWA_ALPHA 来设置整体窗口不透明度（255为不透明）
-                LWA_ALPHA = 0x02
-                alpha_byte = int(max(0.0, min(1.0, self.WINDOW_ALPHA)) * 255)
-                ctypes.windll.user32.SetLayeredWindowAttributes(hwnd, 0, alpha_byte, LWA_ALPHA)
+                # 只让背景色透明，避免全屏半透明窗口压暗游戏画面。
+                LWA_COLORKEY = 0x01
+                transparent_colorref = (
+                    self.TRANSPARENT_COLOR[0]
+                    | (self.TRANSPARENT_COLOR[1] << 8)
+                    | (self.TRANSPARENT_COLOR[2] << 16)
+                )
+                ctypes.windll.user32.SetLayeredWindowAttributes(hwnd, transparent_colorref, 0, LWA_COLORKEY)
 
                 # 立即设置为顶层但不激活窗口（不夺取焦点）
                 HWND_TOPMOST = -1
@@ -128,6 +129,7 @@ class TopmostCrosshair:
                 SWP_NOMOVE = 0x0002
                 SWP_NOSIZE = 0x0001
                 SWP_NOACTIVATE = 0x0010
+                SWP_SHOWWINDOW = 0x0040
                 ctypes.windll.user32.SetWindowPos(
                     hwnd,
                     HWND_TOPMOST,
@@ -158,7 +160,7 @@ class TopmostCrosshair:
     
     def draw_crosshair(self):
         """绘制十字准星"""
-        self.screen.fill((0, 0, 0, 0))
+        self.screen.fill(self.TRANSPARENT_COLOR)
         
         center_x = self.screen_width // 2
         center_y = self.screen_height // 2
